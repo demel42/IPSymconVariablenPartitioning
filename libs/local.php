@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait ModuleTemplateLocalLib
+trait VariableSplitLocalLib
 {
     private function GetFormStatus()
     {

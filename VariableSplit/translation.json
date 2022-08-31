@@ -1,0 +1,28 @@
+{
+	"translations": {
+		"de": {
+			"Variable split": "Variable teilen",
+
+			"__function__": "CheckConfiguration",
+			"Source variable must be specified": "Quellvariable muss angegeben sein",
+
+			"__properties__": "",
+			"Disable instance": "Instanz deaktivieren",
+
+			"Source variable": "Quellvariable",
+			"Ident": "Ident",
+			"Name": "Name",
+			"Destinations": "Ziele",
+			"The settings of the source variable are transferred to the target variables":
+				"Die Einstellungen der Quellvariable werden in die Zielvariablen übernommen",
+
+			"__variables__": "",
+			"Destination": "Ziel",
+
+			"__variable__": "Destination",
+			"no selection": "keine Auswahl",
+
+			"__end__": ""
+		}
+	}
+}
