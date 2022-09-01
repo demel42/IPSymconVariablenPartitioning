@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait VariableSplitLocalLib
+trait VariablenPartioningLocalLib
 {
     private function GetFormStatus()
     {

@@ -5,10 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/common.php';
 require_once __DIR__ . '/../libs/local.php';
 
-class VariableSplit extends IPSModule
+class VariablenPartioning extends IPSModule
 {
-    use VariableSplit\StubsCommonLib;
-    use VariableSplitLocalLib;
+    use VariablenPartioning\StubsCommonLib;
+    use VariablenPartioningLocalLib;
 
     private static $semaphoreID = __CLASS__;
     private static $semaphoreTM = 5 * 1000;
@@ -61,6 +61,30 @@ class VariableSplit extends IPSModule
             $r[] = $this->Translate('Source variable must be specified');
         }
 
+        $destinations = json_decode($this->ReadPropertyString('destinations'), true);
+		if ($destinations != false) {
+			$identList = [];
+			foreach ($destinations as $destination) {
+				$ident = $destination['ident'];
+				if ($ident == "") {
+					$this->SendDebug(__FUNCTION__, '"ident" in "destinations" is needed', 0);
+					$r[] = $this->Translate('Column "ident" in field "destinations" must be not empty');
+					continue;
+				}
+                if (in_array($ident, $identList)) {
+					$this->SendDebug(__FUNCTION__, 'duplicate "ident" in "destinations"', 0);
+					$r[] = $this->Translate('Column "ident" in field "destinations" must be unique');
+				}
+				$identList[] = $ident;
+
+				$name = $destination['name'];
+				if ($name == "") {
+					$this->SendDebug(__FUNCTION__, '"name" in "destinations" is needed', 0);
+					$r[] = $this->Translate('Column "name" in field "destinations" must be not empty');
+				}
+			}
+		}
+
         return $r;
     }
 
@@ -95,7 +119,7 @@ class VariableSplit extends IPSModule
         $associations = [
             [
                 'Wert'  => '-',
-                'Name'  => 'no selection',
+                'Name'  => $this->Translate('no selection'),
                 'Farbe' => -1
             ],
         ];
@@ -107,7 +131,7 @@ class VariableSplit extends IPSModule
             ];
         }
         $this->SendDebug(__FUNCTION__, 'associations=' . print_r($associations, true), 0);
-        $varProf = 'VariableSplit_' . $this->InstanceID . '.Destinations';
+        $varProf = 'VariablenPartioning_' . $this->InstanceID . '.Destinations';
         $this->CreateVarProfile($varProf, VARIABLETYPE_STRING, '', 0, 0, 0, 0, '', $associations, true);
 
         $vpos = 1;
@@ -186,7 +210,7 @@ class VariableSplit extends IPSModule
 
     private function GetFormElements()
     {
-        $formElements = $this->GetCommonFormElements('Variable split');
+        $formElements = $this->GetCommonFormElements('Variablen partioning');
 
         if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
             return $formElements;

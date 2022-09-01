@@ -1,10 +1,10 @@
 {
 	"id": "{21D9AA11-FD7D-E695-E2CF-8338D250BBEA}",
-	"name": "VariableSplit",
+	"name": "Variablen partioning",
 	"author": "Ch. Damsky",
-	"url": "https://github.com/demel42/IPSymconVariableSplit.git",
+	"url": "https://github.com/demel42/IPSymconVariablenPartioning.git",
 	"compatibility": {
-		"version": "6.0"
+		"version": "6.2"
 	},
 	"version": "0.9",
 	"build": 0,

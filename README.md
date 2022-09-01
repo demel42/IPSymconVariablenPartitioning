@@ -24,8 +24,8 @@
 
 ### a. Installation des Moduls
 
-Im [Module Store](https://www.symcon.de/service/dokumentation/komponenten/verwaltungskonsole/module-store/) ist das Modul unter dem Suchbegriff *VariableSplit* zu finden.<br>
-Alternativ kann das Modul über [Module Control](https://www.symcon.de/service/dokumentation/modulreferenz/module-control/) unter Angabe der URL `https://github.com/demel42/VariableSplit.git` installiert werden.
+Im [Module Store](https://www.symcon.de/service/dokumentation/komponenten/verwaltungskonsole/module-store/) ist das Modul unter dem Suchbegriff *VariablePartioning* zu finden.<br>
+Alternativ kann das Modul über [Module Control](https://www.symcon.de/service/dokumentation/modulreferenz/module-control/) unter Angabe der URL `https://github.com/demel42/VariablePartioning.git` installiert werden.
 
 ### b. Einrichtung in IPS
 
@@ -35,7 +35,7 @@ alle Funktionen sind über _RequestAction_ der jew. Variablen ansteuerbar
 
 ## 5. Konfiguration
 
-### VariableSplit Device
+### VariablePartioning
 
 #### Properties
 
@@ -62,7 +62,7 @@ Es werden folgende Variablenprofile angelegt:
 ### GUIDs
 - Modul: `{21D9AA11-FD7D-E695-E2CF-8338D250BBEA}`
 - Instanzen:
-  - VariableSplit: `{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}`
+  - VariablePartioning: `{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}`
 - Nachrichten:
 
 ### Quellen

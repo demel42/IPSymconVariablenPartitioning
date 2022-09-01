@@ -1,12 +1,12 @@
 {
 	"id": "{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}",
-	"name": "VariableSplit",
+	"name": "Variablen partioning",
 	"type": 3,
 	"vendor": "",
 	"aliases": [],
 	"parentRequirements": [],
 	"childRequirements": [],
 	"implemented": [],
-	"prefix": "VariableSplit",
-	"url": "https://github.com/demel42/IPSymconVariableSplit/blob/master/README.md"
+	"prefix": "VariablenPartioning",
+	"url": "https://github.com/demel42/IPSymconVariablenPartioning/blob/master/README.md"
 }

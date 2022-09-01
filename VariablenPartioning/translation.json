@@ -1,10 +1,16 @@
 {
 	"translations": {
 		"de": {
-			"Variable split": "Variable teilen",
+			"Variablen partitioning": "Variablen-Aufteilung",
 
 			"__function__": "CheckConfiguration",
 			"Source variable must be specified": "Quellvariable muss angegeben sein",
+			"Column \"ident\" in field \"destinations\" must be not empty":
+				"Die Spalte \"ident\" im Feld \"Ziele\" darf nicht leer sein",
+			"Column \"ident\" in field \"destinations\" must be unique":
+				"Die Spalte \"ident\" im Feld \"destinations\" muss eindeutig sein",
+			"Column \"name\" in field \"destinations\" must be not empty":
+				"Die Spalte \"Name\" im Feld \"Ziele\" darf nicht leer sein",
 
 			"__properties__": "",
 			"Disable instance": "Instanz deaktivieren",
