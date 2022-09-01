@@ -16,9 +16,17 @@
 			"Disable instance": "Instanz deaktivieren",
 
 			"Source variable": "Quellvariable",
+
+			"Destinations": "Ziele",
 			"Ident": "Ident",
 			"Name": "Name",
-			"Destinations": "Ziele",
+			"Calculate delta": "Delta berechnen",
+			"no": "nein",
+			"manual": "manuell",
+			"hourly": "stündlich",
+			"daily": "täglich",
+			"inactive": "inaktiv",
+
 			"The settings of the source variable are transferred to the target variables":
 				"Die Einstellungen der Quellvariable werden in die Zielvariablen übernommen",
 
@@ -27,6 +35,17 @@
 
 			"__variable__": "Destination",
 			"no selection": "keine Auswahl",
+
+			"__actions__": "",
+			"Destination": "Ziel",
+			"Start time": "Anfangszeitpunkt",
+			"End time": "Endzeitpunkt",
+			"(Re-)partioning archive data from the source variable": "(Neu-)Aufteilung der Archivdaten aus der Quellvariable",
+			"This clears the values of destination variable and re-creates it from source variable":
+				"Dies löscht die Werte der Zielvariablen und erstellt sie neu aus der Quellvariablen",
+
+			"New ident": "Neuer Ident",
+			"Change the ident of a used variable": "Ändern Sie die Bezeichnung einer verwendeten Variablen",
 
 			"__end__": ""
 		}

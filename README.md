@@ -56,6 +56,7 @@ Es werden folgende Variablenprofile angelegt:
 * Integer<br>
 * Float<br>
 * String<br>
+VariablenPartioning_\<Instance-ID\>.Destinations
 
 ## 6. Anhang
 
@@ -69,5 +70,5 @@ Es werden folgende Variablenprofile angelegt:
 
 ## 7. Versions-Historie
 
-- 0.9 @ dd.mm.yyyy HH:MM (beta)
+- 0.9 @ 01.09.2022 11:38 (beta)
   - Initiale Version
