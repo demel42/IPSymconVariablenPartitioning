@@ -70,5 +70,5 @@ VariablenPartioning_\<Instance-ID\>.Destinations
 
 ## 7. Versions-Historie
 
-- 0.9 @ 01.09.2022 11:38 (beta)
+- 0.9 @ 02.09.2022 18:00 (beta)
   - Initiale Version

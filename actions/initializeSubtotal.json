@@ -1,0 +1,25 @@
+{
+        "id": "{940B1E4C-59E0-A828-2E42-359E35E4FC10}",
+        "caption": "Initialize subtotal",
+        "form": [],
+        "action": "VariablenPartioning_InitializeSubtotal($_IPS['TARGET']);",
+        "restrictions": {
+                "objectType": [
+                        1
+                ],
+                "moduleID": [
+                        "{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}"
+                ],
+                "includeEnvironments": [
+                        "TestCommands",
+                        "Default"
+                ]
+        },
+        "priority": 10,
+        "category": "target",
+        "locale": {
+                "de": {
+                        "Initialize subtotal": "Zwischensumme initialisieren"
+                }
+        }
+}

@@ -1,0 +1,25 @@
+{
+        "id": "{3BC9BA78-18EE-295D-7AAC-1EA7FB9A15CA}",
+        "caption": "Build subtotal",
+        "form": [],
+        "action": "VariablenPartioning_BuildSubtotal($_IPS['TARGET']);",
+        "restrictions": {
+                "objectType": [
+                        1
+                ],
+                "moduleID": [
+                        "{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}"
+                ],
+                "includeEnvironments": [
+                        "TestCommands",
+                        "Default"
+                ]
+        },
+        "priority": 10,
+        "category": "target",
+        "locale": {
+                "de": {
+                        "Build subtotal": "Zwischensumme erzeugen"
+                }
+        }
+}

@@ -13,10 +13,10 @@ class VariablenPartioning extends IPSModule
     private static $semaphoreID = __CLASS__;
     private static $semaphoreTM = 5 * 1000;
 
-    public static $DELTA_NONE = 0;
-    public static $DELTA_MANUAL = 1;
-    public static $DELTA_HOURLY = 2;
-    public static $DELTA_DAILY = 3;
+    public static $null_destination = '-';
+
+    public static $ident_var_pfx = 'VAR_';
+    public static $ident_sub_pfx = 'SUB_';
 
     private $ModuleDir;
 
@@ -38,6 +38,7 @@ class VariablenPartioning extends IPSModule
 
         $this->RegisterAttributeInteger('variableType', 0);
         $this->RegisterAttributeInteger('aggregationType', 0);
+        $this->RegisterAttributeString('variableData', json_encode([]));
 
         $this->InstallVarProfiles(false);
 
@@ -49,6 +50,13 @@ class VariablenPartioning extends IPSModule
         parent::MessageSink($timestamp, $senderID, $message, $data);
 
         if ($message == IPS_KERNELMESSAGE && $data[0] == KR_READY) {
+            $destination = $this->GetValue('Destination');
+            if ($destination != '' && $destination != self::$null_destination) {
+                $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+                if (isset($variableData[$destination]) == false) {
+                    $this->ChangeDestination($destination);
+                }
+            }
         }
 
         if (IPS_GetKernelRunlevel() == KR_READY && $message == VM_UPDATE && $data[1] == true /* changed */) {
@@ -124,7 +132,7 @@ class VariablenPartioning extends IPSModule
         $destinations = json_decode($this->ReadPropertyString('destinations'), true);
         $associations = [
             [
-                'Wert'  => '-',
+                'Wert'  => self::$null_destination,
                 'Name'  => $this->Translate('no selection'),
                 'Farbe' => 0x595959,
             ],
@@ -147,7 +155,7 @@ class VariablenPartioning extends IPSModule
         $this->MaintainVariable('Destination', $this->Translate('Destination'), VARIABLETYPE_STRING, $variableProfile, $vpos++, true);
         $this->MaintainAction('Destination', true);
 
-        $vpos = 10;
+        $vpos_base = 10;
 
         $source_varID = $this->ReadPropertyInteger('source_varID');
         if (IPS_VariableExists($source_varID)) {
@@ -166,7 +174,10 @@ class VariablenPartioning extends IPSModule
 
             $varList = [];
             foreach ($destinations as $destination) {
-                $ident = 'VAR_' . $destination['ident'];
+                $vpos = $vpos_base;
+                $vpos_base += 10;
+
+                $ident = self::$ident_var_pfx . $destination['ident'];
                 $name = $destination['name'];
                 $this->MaintainVariable($ident, $name, $variableType, $variableProfile, $vpos++, true);
                 $varList[] = $ident;
@@ -183,6 +194,28 @@ class VariablenPartioning extends IPSModule
                     AC_SetCounterIgnoreZeros($archivID, $varID, $ignoreZeros);
                     if ($reAggregate) {
                         AC_ReAggregateVariable(archivID, $varID);
+                    }
+                }
+
+                $subtotal = $destination['subtotal'];
+                if ($subtotal) {
+                    $ident = self::$ident_sub_pfx . $destination['ident'];
+                    $name = $destination['name'] . ' (' . $this->Translate('subtotal') . ')';
+                    $this->MaintainVariable($ident, $name, $variableType, $variableProfile, $vpos++, true);
+                    $varList[] = $ident;
+
+                    $varID = $this->GetIDForIdent($ident);
+
+                    IPS_SetName($varID, $name);
+                    IPS_SetVariableCustomProfile($varID, $variableCustomProfile);
+
+                    $reAggregate = AC_GetLoggingStatus($archivID, $source_varID) == false;
+                    AC_SetLoggingStatus($archivID, $varID, $loggingStatus);
+                    if ($loggingStatus) {
+                        AC_SetAggregationType($archivID, $varID, 0 /* Standard */);
+                        if ($reAggregate) {
+                            AC_ReAggregateVariable(archivID, $varID);
+                        }
                     }
                 }
             }
@@ -213,6 +246,14 @@ class VariablenPartioning extends IPSModule
         $this->MaintainStatus(IS_ACTIVE);
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
+            $destination = $this->GetValue('Destination');
+            if ($destination != '' && $destination != self::$null_destination) {
+                $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+                $this->SendDebug(__FUNCTION__, 'destination=' . $destination, 0);
+                if (isset($variableData[$destination]) == false) {
+                    $this->ChangeDestination($destination);
+                }
+            }
         }
     }
 
@@ -263,31 +304,13 @@ class VariablenPartioning extends IPSModule
                     'caption' => 'Name',
                 ],
                 [
-                    'name'    => 'delta',
-                    'add'     => self::$DELTA_NONE,
+                    'name'    => 'subtotal',
+                    'add'     => false,
                     'edit'    => [
-                        'type'    => 'Select',
-                        'options' => [
-                            [
-                                'value'   => self::$DELTA_NONE,
-                                'caption' => 'no',
-                            ],
-                            [
-                                'value'   => self::$DELTA_MANUAL,
-                                'caption' => $this->Translate('manual'),
-                            ],
-                            [
-                                'value'   => self::$DELTA_HOURLY,
-                                'caption' => $this->Translate('hourly'),
-                            ],
-                            [
-                                'value'   => self::$DELTA_DAILY,
-                                'caption' => $this->Translate('daily'),
-                            ],
-                        ],
+                        'type'    => 'CheckBox',
                     ],
                     'width'   => '200px',
-                    'caption' => 'Calculate delta',
+                    'caption' => 'Subtotal',
                 ],
                 [
                     'name'    => 'inactive',
@@ -334,11 +357,109 @@ class VariablenPartioning extends IPSModule
             ];
         }
 
+        $archivID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
+        $avars = AC_GetAggregationVariables($archivID, false);
+
+        $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+        $offsetValues = [];
+        foreach ($variableData as $dest => $val) {
+            @$varID = $this->GetIDForIdent(self::$ident_var_pfx . $dest);
+            $firstTime = 0;
+            $lastTime = 0;
+            $recordCount = 0;
+            foreach ($avars as $avar) {
+                if ($avar['VariableID'] == $varID) {
+                    $firstTime = $avar['FirstTime'];
+                    $lastTime = $avar['LastTime'];
+                    $recordCount = $avar['RecordCount'];
+                    break;
+                }
+            }
+
+            $offsetValues[] = [
+                'destination'  => $dest,
+                'src_value'    => $val['src_value'],
+                'updated'      => ($val['updated'] ? date('d.m.Y H:i:s', $val['updated']) : '-'),
+                'offset'       => (isset($val['offset']) ? $val['offset'] : ''),
+                'firstTime'    => ($firstTime ? date('d.m.Y H:i:s', $firstTime) : '-'),
+                'lastTime'     => ($lastTime ? date('d.m.Y H:i:s', $lastTime) : '-'),
+                'recordCount'  => $recordCount,
+            ];
+        }
+        $this->SendDebug(__FUNCTION__, 'offsetValues=' . print_r($offsetValues, true), 0);
+
+        $variableType = $this->ReadAttributeInteger('variableType');
+        switch ($variableType) {
+            case VARIABLETYPE_INTEGER:
+            case VARIABLETYPE_FLOAT:
+                $formActions[] = [
+                    'type'    => 'RowLayout',
+                    'items'   => [
+                        [
+                            'type'      => 'Button',
+                            'caption'   => 'Build subtotal',
+                            'onClick'   => $this->GetModulePrefix() . '_SubtotalBuild($id);'
+                        ],
+                        [
+                            'type'      => 'Button',
+                            'caption'   => 'Initialize subtotal',
+                            'onClick'   => $this->GetModulePrefix() . '_SubtotalInitialize($id);'
+                        ],
+                    ],
+                ];
+                break;
+        }
+
         $formActions[] = [
             'type'      => 'ExpansionPanel',
             'caption'   => 'Expert area',
             'expanded ' => false,
             'items'     => [
+                [
+                    'type'     => 'List',
+                    'add'      => false,
+                    'delete'   => false,
+                    'columns'  => [
+                        [
+                            'name'     => 'destination',
+                            'width'    => 'auto',
+                            'caption'  => 'Destination',
+                        ],
+                        [
+                            'name'     => 'src_value',
+                            'width'    => '200px',
+                            'caption'  => 'Initial source value',
+                        ],
+                        [
+                            'name'     => 'updated',
+                            'width'    => '250px',
+                            'caption'  => 'Initial source timestamp',
+                        ],
+                        [
+                            'name'     => 'offset',
+                            'width'    => '200px',
+                            'caption'  => 'Offset from source',
+                        ],
+                        [
+                            'name'     => 'firstTime',
+                            'width'    => '200px',
+                            'caption'  => 'First destination value',
+                        ],
+                        [
+                            'name'     => 'lastTime',
+                            'width'    => '200px',
+                            'caption'  => 'Last destination value',
+                        ],
+                        [
+                            'name'     => 'recordCount',
+                            'width'    => '100px',
+                            'caption'  => 'Count',
+                        ],
+                    ],
+                    'rowCount' => count($offsetValues) > 0 ? count($offsetValues) : 1,
+                    'values'   => $offsetValues,
+                    'caption'  => 'Variable data',
+                ],
                 [
                     'type'    => 'RowLayout',
                     'items'   => [
@@ -376,10 +497,10 @@ class VariablenPartioning extends IPSModule
                             'caption' => 'Destination'
                         ],
                         [
-                            'type'    => 'ValidationTextBox',
-							'validate' => '^[0-9A-Za-z]+$',
-                            'name'    => 'new_ident',
-                            'caption' => 'New ident'
+                            'type'     => 'ValidationTextBox',
+                            'validate' => '^[0-9A-Za-z]+$',
+                            'name'     => 'new_ident',
+                            'caption'  => 'New ident'
                         ],
                         [
                             'type'    => 'Button',
@@ -406,6 +527,54 @@ class VariablenPartioning extends IPSModule
         $formActions[] = $this->GetReferencesFormAction();
 
         return $formActions;
+    }
+
+    private function ChangeDestination($destination)
+    {
+        if ($destination == '' || $destination == self::$null_destination) {
+            $this->SendDebug(__FUNCTION__, 'destination is not set', 0);
+            return true;
+        }
+
+        $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+        if ($this->GetValue('Destination') == $destination && isset($variableData[$destination])) {
+            $this->SendDebug(__FUNCTION__, 'destination "' . $destination . '" keep unchanged', 0);
+            return false;
+        }
+
+        $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+        $this->SendDebug(__FUNCTION__, 'old offset=' . print_r($variableData, true), 0);
+
+        $source_varID = $this->ReadPropertyInteger('source_varID');
+        $var = IPS_GetVariable($source_varID);
+        $srcValue = GetValue($source_varID);
+
+        $ident = self::$ident_var_pfx . $destination;
+        $dstValue = $this->GetValue($ident);
+
+        $e = [
+            'src_value' => $srcValue,
+            'updated'   => $var['VariableUpdated'],
+        ];
+
+        $aggregationType = $this->ReadAttributeInteger('aggregationType');
+        if ($aggregationType == 1 /* Zähler */) {
+            $variableType = $this->ReadAttributeInteger('variableType');
+            switch ($variableType) {
+                case VARIABLETYPE_INTEGER:
+                    $e['offset'] = (int) $srcValue - (int) $dstValue;
+                    break;
+                case VARIABLETYPE_FLOAT:
+                    $e['offset'] = (float) $srcValue - (float) $dstValue;
+                    break;
+            }
+        }
+
+        $variableData[$destination] = $e;
+        $this->SendDebug(__FUNCTION__, 'new offset=' . print_r($variableData, true), 0);
+        $this->WriteAttributeString('variableData', json_encode($variableData));
+
+        return true;
     }
 
     private function LocalRequestAction($ident, $value)
@@ -444,7 +613,7 @@ class VariablenPartioning extends IPSModule
         $r = false;
         switch ($ident) {
             case 'Destination':
-                $r = true;
+                $r = $this->ChangeDestination($value);
                 break;
             default:
                 $this->SendDebug(__FUNCTION__, 'invalid ident ' . $ident, 0);
@@ -460,22 +629,35 @@ class VariablenPartioning extends IPSModule
         $this->SendDebug(__FUNCTION__, 'value=' . $value . ', oldValue=' . $oldValue . ', changed=' . $this->bool2str($changed), 0);
 
         if ($changed) {
-            $ident = $this->GetValue('Destination');
-            if ($ident != '' && $ident != '-') {
-                $ident = 'VAR_' . $ident;
+            $destination = $this->GetValue('Destination');
+            if ($destination != '' && $destination != self::$null_destination) {
+                $ident = self::$ident_var_pfx . $destination;
                 $aggregationType = $this->ReadAttributeInteger('aggregationType');
                 if ($aggregationType == 1 /* Zähler */) {
+                    $variableData = json_decode($this->ReadAttributeString('variableData'), true);
                     $variableType = $this->ReadAttributeInteger('variableType');
                     switch ($variableType) {
                         case VARIABLETYPE_INTEGER:
-                            $diff = (int) $value - (int) $oldValue;
-                            $value = (int) $this->GetValue($ident) + $diff;
-                            $this->SendDebug(__FUNCTION__, 'calc value: diff=' . $diff . ' => new value=' . $value, 0);
+                            $offset = isset($variableData[$destination]['offset']) ? (int) $variableData[$destination]['offset'] : 0;
+                            if ($offset) {
+                                $value = (int) $value - (int) $offset;
+                                $this->SendDebug(__FUNCTION__, 'calc value: offset=' . $offset . ' => new value=' . $value, 0);
+                            } else {
+                                $diff = (int) $value - (int) $oldValue;
+                                $value = (int) $this->GetValue($ident) + $diff;
+                                $this->SendDebug(__FUNCTION__, 'calc value: diff=' . $diff . ' => new value=' . $value, 0);
+                            }
                             break;
                         case VARIABLETYPE_FLOAT:
-                            $diff = (float) $value - (float) $oldValue;
-                            $value = (float) $this->GetValue($ident) + $diff;
-                            $this->SendDebug(__FUNCTION__, 'calc value: diff=' . $diff . ' => new value=' . $value, 0);
+                            $offset = isset($variableData[$destination]['offset']) ? (float) $variableData[$destination]['offset'] : 0;
+                            if ($offset) {
+                                $value = (float) $value - (float) $offset;
+                                $this->SendDebug(__FUNCTION__, 'calc value: offset=' . $offset . ' => new value=' . $value, 0);
+                            } else {
+                                $diff = (float) $value - (float) $oldValue;
+                                $value = (float) $this->GetValue($ident) + $diff;
+                                $this->SendDebug(__FUNCTION__, 'calc value: diff=' . $diff . ' => new value=' . $value, 0);
+                            }
                             break;
                     }
                 }
@@ -499,6 +681,8 @@ class VariablenPartioning extends IPSModule
 
         $destination = $jargs['destination'];
 
+        $now = time();
+
         $start_tm = json_decode($jargs['start_tm'], true);
         if ($start_tm['year'] > 0) {
             $start_ts = mktime($start_tm['hour'], $start_tm['minute'], $start_tm['second'], $start_tm['month'], $start_tm['day'], $start_tm['year']);
@@ -510,7 +694,7 @@ class VariablenPartioning extends IPSModule
         if ($end_tm['year'] > 0) {
             $end_ts = mktime($end_tm['hour'], $end_tm['minute'], $end_tm['second'], $end_tm['month'], $end_tm['day'], $end_tm['year']);
         } else {
-            $end_ts = time();
+            $end_ts = $now;
         }
 
         $startS = $start_ts ? date('d.m.Y H:i:s', $start_ts) : '-';
@@ -543,7 +727,7 @@ class VariablenPartioning extends IPSModule
         }
 
         if ($do) {
-            $ident_dst = 'VAR_' . $destination;
+            $ident_dst = self::$ident_var_pfx . $destination;
             @$varID_dst = $this->GetIDForIdent($ident_dst);
             if ($varID_dst == false) {
                 $s = 'missing destination variable "' . $ident_dst . '"';
@@ -561,38 +745,67 @@ class VariablenPartioning extends IPSModule
             $old_num = AC_DeleteVariableData($archivID, $varID_dst, 0, time());
             $msg .= 'deleted all (' . $old_num . ') from destination variable "' . $ident_dst . '"' . PHP_EOL;
 
-            $dst_val = [];
+            $dst_vals = [];
             for ($start = $start_ts; $start < $end_ts; $start = $end + 1) {
                 $end = $start + (24 * 60 * 60 * 30) - 1;
 
-                $src_val = AC_GetLoggedValues($archivID, $varID_src, $start, $end, 0);
-                foreach ($src_val as $val) {
-                    $dst_val[] = [
+                $src_vals = AC_GetLoggedValues($archivID, $varID_src, $start, $end, 0);
+                foreach ($src_vals as $val) {
+                    $dst_vals[] = [
                         'TimeStamp' => $val['TimeStamp'],
                         'Value'     => $val['Value'],
                     ];
                 }
-                $this->SendDebug(__FUNCTION__, 'start=' . date('d.m.Y H:i:s', $start) . ', end=' . date('d.m.Y H:i:s', $end) . ', count=' . count($src_val), 0);
+                $this->SendDebug(__FUNCTION__, 'start=' . date('d.m.Y H:i:s', $start) . ', end=' . date('d.m.Y H:i:s', $end) . ', count=' . count($src_vals), 0);
             }
-            $dst_num = count($dst_val);
+            $dst_num = count($dst_vals);
             if ($dst_num > 0) {
-                usort($dst_val, [__CLASS__, 'cmp_val']);
-                $start_value = $dst_val[0]['Value'];
+                usort($dst_vals, [__CLASS__, 'cmp_val']);
+                $start_value = $dst_vals[0]['Value'];
+                $start_updated = $dst_vals[0]['TimeStamp'];
                 for ($i = 0; $i < $dst_num; $i++) {
-                    $dst_val[$i]['Value'] -= $start_value;
+                    $dst_vals[$i]['Value'] -= $start_value;
                 }
-                $end_value = $dst_val[$dst_num - 1]['Value'];
+                if ($end_ts == $now) {
+                    $end_value = GetValue($varID_src);
+                } else {
+                    $v = array_pop($dst_vals);
+                    $end_value = $v['Value'];
+                }
+            } else {
+                $start_value = 0;
+                $start_updated = 0;
+                $end_value = GetValue($varID_src);
             }
             $this->SendDebug(__FUNCTION__, 'add ' . $dst_num . ' values, start_val=' . $start_value, 0);
-            if (AC_AddLoggedValues($archivID, $varID_dst, $dst_val) == false) {
+            if (AC_AddLoggedValues($archivID, $varID_dst, $dst_vals) == false) {
                 $s = 'add ' . $dst_num . ' values to destination variable "' . $ident_dst . '" failed';
                 $this->SendDebug(__FUNCTION__, $s, 0);
                 $msg .= $s;
                 $do = false;
             }
 
-            $this->SendDebug(__FUNCTION__, 'set value from destination variable "' . $ident_dst . '"', 0);
-            $this->SetValue($ident_dst, $end_value);
+            $e = [
+                'src_value' => $start_value,
+                'updated'   => $start_updated
+            ];
+
+            $aggregationType = $this->ReadAttributeInteger('aggregationType');
+            if ($aggregationType == 1 /* Zähler */) {
+                $variableType = $this->ReadAttributeInteger('variableType');
+                switch ($variableType) {
+                    case VARIABLETYPE_INTEGER:
+                        $e['offset'] = (int) $start_value;
+                        break;
+                    case VARIABLETYPE_FLOAT:
+                        $e['offset'] = (float) $start_value;
+                        break;
+                }
+            }
+
+            $variableData[$destination] = $e;
+            $this->SendDebug(__FUNCTION__, 'new offset=' . print_r($variableData, true), 0);
+            $this->WriteAttributeString('variableData', json_encode($variableData));
         }
 
         if ($do) {
@@ -608,6 +821,9 @@ class VariablenPartioning extends IPSModule
         }
 
         if ($do) {
+            $this->SendDebug(__FUNCTION__, 'set value from destination variable "' . $ident_dst . '"', 0);
+            $this->SetValue($ident_dst, $end_value);
+
             $msg .= 'destination variable "' . $ident_dst . '" re-aggregated' . PHP_EOL;
         }
 
@@ -621,7 +837,10 @@ class VariablenPartioning extends IPSModule
             $obj = IPS_GetObject($chldID);
             switch ($obj['ObjectType']) {
                 case OBJECTTYPE_VARIABLE:
-                    if (preg_match('#^VAR_#', $obj['ObjectIdent'], $r)) {
+                    if (preg_match('#^' . self::$ident_var_pfx . '#', $obj['ObjectIdent'], $r)) {
+                        $objList[] = $obj;
+                    }
+                    if (preg_match('#^' . self::$ident_sub_pfx . '#', $obj['ObjectIdent'], $r)) {
                         $objList[] = $obj;
                     }
                     break;
@@ -647,7 +866,7 @@ class VariablenPartioning extends IPSModule
         $do = true;
 
         if ($do) {
-            $ident = 'VAR_' . $destination;
+            $ident = self::$ident_var_pfx . $destination;
             @$varID = $this->GetIDForIdent($ident);
             if ($varID == false) {
                 $s = 'missing destination variable "' . $ident . '"';
@@ -682,18 +901,84 @@ class VariablenPartioning extends IPSModule
                     }
                 }
 
-				$this->SendDebug(__FUNCTION__, 'new destinations='.print_r($destinations,true),0);
+                $this->SendDebug(__FUNCTION__, 'new destinations=' . print_r($destinations, true), 0);
 
-                IPS_SetIdent($varID, 'VAR_' . $new_ident);
+                IPS_SetIdent($varID, self::$ident_var_pfx . $new_ident);
                 IPS_SetProperty($this->InstanceID, 'destinations', json_encode($destinations));
                 IPS_ApplyChanges($this->InstanceID);
+                if ($this->GetValue('Destination') == $destination) {
+                    $this->SetValue('Destination', $new_ident);
+                }
 
-				$s = 'changed ident to "VAR_'.$new_ident.'"';
-				$this->SendDebug(__FUNCTION__, $s, 0);
-				$msg .= $s;
+                $s = 'changed ident to "VAR_' . $new_ident . '"';
+                $this->SendDebug(__FUNCTION__, $s, 0);
+                $msg .= $s;
             }
         }
 
         $this->PopupMessage($msg);
+    }
+
+    public function SubtotalInitialize()
+    {
+        $destination = $this->GetValue('Destination');
+        if ($destination != '' && $destination != self::$null_destination) {
+            $variableType = $this->ReadAttributeInteger('variableType');
+            switch ($variableType) {
+                case VARIABLETYPE_INTEGER:
+                case VARIABLETYPE_FLOAT:
+                    $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+                    if (isset($variableData[$destination]) == false) {
+                        $this->ChangeDestination($destination);
+                        $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+                    }
+                    $ident = self::$ident_var_pfx . $destination;
+                    $cur_value = $this->GetValue($ident);
+                    $variableData[$destination]['subtotal'] = $cur_value;
+                    $this->WriteAttributeString('variableData', json_encode($variableData));
+
+                    $this->SendDebug(__FUNCTION__, 'initialize subtotal=' . $cur_value, 0);
+                    break;
+                default:
+                    $this->SendDebug(__FUNCTION__, 'only supported with numeric variabletypes', 0);
+                    break;
+            }
+        }
+    }
+
+    public function SubtotalBuild()
+    {
+        $destination = $this->GetValue('Destination');
+        if ($destination != '' && $destination != self::$null_destination) {
+            $variableType = $this->ReadAttributeInteger('variableType');
+            switch ($variableType) {
+                case VARIABLETYPE_INTEGER:
+                case VARIABLETYPE_FLOAT:
+                    $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+                    if (isset($variableData[$destination]) == false) {
+                        $this->ChangeDestination($destination);
+                        $variableData = json_decode($this->ReadAttributeString('variableData'), true);
+                    }
+                    if (isset($variableData[$destination]['subtotal'])) {
+                        $sub_value = $variableData[$destination]['subtotal'];
+                    } else {
+                        $sub_value = 0;
+                    }
+                    $ident = self::$ident_var_pfx . $destination;
+                    $cur_value = $this->GetValue($ident);
+                    $variableData[$destination]['subtotal'] = $cur_value;
+                    $this->WriteAttributeString('variableData', json_encode($variableData));
+
+                    $ident = self::$ident_sub_pfx . $destination;
+                    $new_value = $this->GetValue($ident) + ($cur_value - $sub_value);
+                    $this->SetValue($ident, $new_value);
+
+                    $this->SendDebug(__FUNCTION__, 'subtotal=' . $sub_value . '/' . $cur_value . ', new_value=' . $new_value, 0);
+                    break;
+                default:
+                    $this->SendDebug(__FUNCTION__, 'only supported with numeric variabletypes', 0);
+                    break;
+            }
+        }
     }
 }

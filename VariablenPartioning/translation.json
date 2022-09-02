@@ -20,11 +20,7 @@
 			"Destinations": "Ziele",
 			"Ident": "Ident",
 			"Name": "Name",
-			"Calculate delta": "Delta berechnen",
-			"no": "nein",
-			"manual": "manuell",
-			"hourly": "stündlich",
-			"daily": "täglich",
+			"Subtotal": "Zwischensumme",
 			"inactive": "inaktiv",
 
 			"The settings of the source variable are transferred to the target variables":
@@ -35,8 +31,21 @@
 
 			"__variable__": "Destination",
 			"no selection": "keine Auswahl",
+			"subtotal": "Zwischensumme",
 
 			"__actions__": "",
+			"Build subtotal": "Zwischensumme bilden",
+			"Initialize subtotal": "Zwischensumme initialisieren",
+
+			"Destinations": "Ziele",
+			"Initial source value": "Ursprünglicher Quellwert",
+			"Initial source timestamp": "Zeitstempel des Quellwerts",
+			"Offset from source": "Offset zur Quelle",
+			"First destination value": "Erster Zielwert",
+			"Last destination value": "Letzter Zielwert",
+			"Count": "Anzahl",
+			"Variable data": "Variablen-Daten",
+
 			"Destination": "Ziel",
 			"Start time": "Anfangszeitpunkt",
 			"End time": "Endzeitpunkt",
