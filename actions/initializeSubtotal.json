@@ -2,7 +2,7 @@
         "id": "{940B1E4C-59E0-A828-2E42-359E35E4FC10}",
         "caption": "Initialize subtotal",
         "form": [],
-        "action": "VariablenPartioning_InitializeSubtotal($_IPS['TARGET']);",
+        "action": "VariablenPartioning_SubtotalInitialize($_IPS['TARGET']);",
         "restrictions": {
                 "objectType": [
                         1

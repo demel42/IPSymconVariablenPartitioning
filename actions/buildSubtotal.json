@@ -2,7 +2,7 @@
         "id": "{3BC9BA78-18EE-295D-7AAC-1EA7FB9A15CA}",
         "caption": "Build subtotal",
         "form": [],
-        "action": "VariablenPartioning_BuildSubtotal($_IPS['TARGET']);",
+        "action": "VariablenPartioning_SubtotalBuild($_IPS['TARGET']);",
         "restrictions": {
                 "objectType": [
                         1

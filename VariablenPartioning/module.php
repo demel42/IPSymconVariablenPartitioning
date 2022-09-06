@@ -212,7 +212,8 @@ class VariablenPartioning extends IPSModule
                     $reAggregate = AC_GetLoggingStatus($archivID, $source_varID) == false;
                     AC_SetLoggingStatus($archivID, $varID, $loggingStatus);
                     if ($loggingStatus) {
-                        AC_SetAggregationType($archivID, $varID, 0 /* Standard */);
+                        AC_SetAggregationType($archivID, $varID, $aggregationType);
+                        AC_SetCounterIgnoreZeros($archivID, $varID, $ignoreZeros);
                         if ($reAggregate) {
                             AC_ReAggregateVariable(archivID, $varID);
                         }
