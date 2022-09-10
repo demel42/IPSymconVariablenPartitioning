@@ -16,7 +16,7 @@
 
 ## 1. Funktionsumfang
 
-Mit Hilfe des Moduls können Änderungen eine Quellvariable auf beliebig viele Zielvariablen aufgeteilt werden.
+Mit Hilfe des Moduls können Änderungen einer Quellvariablen auf beliebig viele Zielvariablen aufgeteilt werden.
 Dies macht besonders Sinn bei geloggten Variablen, ist aber nicht darauf eingeschränkt.
 
 Hintergrund: wenn man man z.B. einen Zwischenstecker hat mit Verbrauchsmessung können die ermittelten Werte auf
@@ -43,8 +43,8 @@ Zur Unterstützung der Aufarbeitung in der Vergangenheit protokollierter Werte k
 
 ### a. Installation des Moduls
 
-Im [Module Store](https://www.symcon.de/service/dokumentation/komponenten/verwaltungskonsole/module-store/) ist das Modul unter dem Suchbegriff *VariablePartioning* zu finden.<br>
-Alternativ kann das Modul über [Module Control](https://www.symcon.de/service/dokumentation/modulreferenz/module-control/) unter Angabe der URL `https://github.com/demel42/VariablePartioning.git` installiert werden.
+Im [Module Store](https://www.symcon.de/service/dokumentation/komponenten/verwaltungskonsole/module-store/) ist das Modul unter dem Suchbegriff *VariablePartitioning* zu finden.<br>
+Alternativ kann das Modul über [Module Control](https://www.symcon.de/service/dokumentation/modulreferenz/module-control/) unter Angabe der URL `https://github.com/demel42/VariablePartitioning.git` installiert werden.
 
 ### b. Einrichtung in IPS
 
@@ -55,15 +55,15 @@ Die Angabe der Quellvariable und min. einem Ziel im Instanz-Dialog ist zwingend 
 
 alle Funktionen sind über _RequestAction_ der jeweiligen Variablen ansteuerbar sowie über Aktionen
 
-`void VariablenPartioning_SubtotalBuild(integer $InstanzID)`<br>
+`void VariablenPartitioning_SubtotalBuild(integer $InstanzID)`<br>
 Summiert die Änderungen der Zielvariablen in eine eigene geloggte Variable.
 
-`void VariablenPartioning_SubtotalInitialize(integer $InstanzID)`<br>
+`void VariablenPartitioning_SubtotalInitialize(integer $InstanzID)`<br>
 Standardmässig wird bei jedem _SubtotalBuild_ auf den Wert des vorigen _SubtotalBuild_ Bezug genommen. Mit dieser Funktion kann aber der aktuelle Wert als neuer Bezugswert gesetzt werden.
 
 ## 5. Konfiguration
 
-### VariablePartioning
+### VariablePartitioning
 
 #### Properties
 
@@ -102,14 +102,14 @@ Wichtig: die Einstellungen der Quellvariable (┃ariablentyp, Variablenprofile, 
 
 Es werden folgende Variablenprofile angelegt:
 * String<br>
-VariablenPartioning_\<Instance-ID\>.Destinations
+VariablenPartitioning_\<Instance-ID\>.Destinations
 
 ## 6. Anhang
 
 ### GUIDs
 - Modul: `{21D9AA11-FD7D-E695-E2CF-8338D250BBEA}`
 - Instanzen:
-  - VariablePartioning: `{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}`
+  - VariablePartitioning: `{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}`
 - Nachrichten:
 
 ### Quellen

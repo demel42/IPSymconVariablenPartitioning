@@ -1,12 +1,12 @@
 {
 	"id": "{E689DE3B-64B1-98D9-C7C1-AE0E96B25138}",
-	"name": "VariablenPartioning",
+	"name": "VariablenPartitioning",
 	"type": 3,
 	"vendor": "",
 	"aliases": [],
 	"parentRequirements": [],
 	"childRequirements": [],
 	"implemented": [],
-	"prefix": "VariablenPartioning",
-	"url": "https://github.com/demel42/IPSymconVariablenPartioning/blob/master/README.md"
+	"prefix": "VariablenPartitioning",
+	"url": "https://github.com/demel42/IPSymconVariablenPartitioning/blob/master/README.md"
 }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/common.php';
 require_once __DIR__ . '/../libs/local.php';
 
-class VariablenPartioning extends IPSModule
+class VariablenPartitioning extends IPSModule
 {
-    use VariablenPartioning\StubsCommonLib;
-    use VariablenPartioningLocalLib;
+    use VariablenPartitioning\StubsCommonLib;
+    use VariablenPartitioningLocalLib;
 
     private static $semaphoreID = __CLASS__;
     private static $semaphoreTM = 5 * 1000;
@@ -148,7 +148,7 @@ class VariablenPartioning extends IPSModule
             ];
         }
         $this->SendDebug(__FUNCTION__, 'associations=' . print_r($associations, true), 0);
-        $variableProfile = 'VariablenPartioning_' . $this->InstanceID . '.Destinations';
+        $variableProfile = $this->GetModulePrefix() . '_' . $this->InstanceID . '.Destinations';
         $this->CreateVarProfile($variableProfile, VARIABLETYPE_STRING, '', 0, 0, 0, 0, '', $associations, true);
 
         $vpos = 1;
