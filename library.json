@@ -4,9 +4,9 @@
 	"author": "Ch. Damsky",
 	"url": "https://github.com/demel42/IPSymconVariablenPartioning.git",
 	"compatibility": {
-		"version": "6.2"
+		"version": "6.0"
 	},
-	"version": "0.9",
+	"version": "1.0",
 	"build": 0,
-	"date": 1662134417
+	"date": 1662797817
 }

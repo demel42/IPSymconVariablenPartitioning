@@ -505,7 +505,7 @@ class VariablenPartioning extends IPSModule
                         ],
                         [
                             'type'    => 'Button',
-                            'caption' => 'Change the ident of a used variable',
+                            'caption' => 'Change the ident of a desitination',
                             'onClick' => 'IPS_RequestAction(' . $this->InstanceID . ', "ChangeIdent", json_encode(["destination" => $destination, "new_ident" => $new_ident]));',
                         ],
                     ],

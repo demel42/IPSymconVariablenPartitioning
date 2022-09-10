@@ -54,7 +54,7 @@
 				"Dies löscht die Werte der Zielvariablen und erstellt sie neu aus der Quellvariablen",
 
 			"New ident": "Neuer Ident",
-			"Change the ident of a used variable": "Ändern Sie die Bezeichnung einer verwendeten Variablen",
+			"Change the ident of a desitination": "Ident eines Ziels ändern",
 
 			"__end__": ""
 		}

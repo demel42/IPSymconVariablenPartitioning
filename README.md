@@ -16,6 +16,25 @@
 
 ## 1. Funktionsumfang
 
+Mit Hilfe des Moduls können Änderungen eine Quellvariable auf beliebig viele Zielvariablen aufgeteilt werden.
+Dies macht besonders Sinn bei geloggten Variablen, ist aber nicht darauf eingeschränkt.
+
+Hintergrund: wenn man man z.B. einen Zwischenstecker hat mit Verbrauchsmessung können die ermittelten Werte auf
+unterschiedliche Geräte aufgeteilt werden; sei es, das man den gleichen Stecker für mehrere Verbrauch nutzt
+(natürlich nicht zum gleichen Zeitpunkt) oder man nacheinander verschiedene Verbraucher damit überwacht und diese
+Messungen trennen möchte oder indem man am Verbraucher etwas ändert.
+
+Hierzu wird die Änderung der Quellvariable auf das jeweils aktuelle Ziel übernommen - für jedes konfigurierte Ziel wird vom Modul
+eine eigene Statusvariable angelegt, die 1:1 so konfigurert ist, wie die Quellvariable.
+Zwischen den Zielen kann mittels einer Variablen ausgewählt werden.
+
+Weiterhin ist es optional möglich, Zwischensummen zu bilden, das d.h. es gibt zu dem Modul eine zweite Variablen, in der die
+aufgelaufenen Änderungen aufsummiert werden.
+Damit kann man z.B. zeitabhängig (z.B. stündlich oder täglich) die Änderungen speichern (durch ein zyklisches Ereignis) oder die Summe
+eines "Durchlaufs", z.B. mit Hilfe des Moduls [Fertig-Melder](https://github.com/symcon/FertigMelder).
+
+Zur Unterstützung der Aufarbeitung in der Vergangenheit protokollierter Werte kann man die Quellvariable auch nachträglich auf Ziele verteilen (Instanz-Dialog unter _Experten-Bereich_.
+
 ## 2. Voraussetzungen
 
 - IP-Symcon ab Version 6.0
@@ -29,9 +48,18 @@ Alternativ kann das Modul über [Module Control](https://www.symcon.de/service/d
 
 ### b. Einrichtung in IPS
 
+In IP-Symcon nun unterhalb des Wurzelverzeichnisses die Funktion _Instanz hinzufügen_ auswählen, als Gerät _VariablenPartitioning_ auswählen.
+Die Angabe der Quellvariable und min. einem Ziel im Instanz-Dialog ist zwingend erforderlich.
+
 ## 4. Funktionsreferenz
 
-alle Funktionen sind über _RequestAction_ der jew. Variablen ansteuerbar
+alle Funktionen sind über _RequestAction_ der jeweiligen Variablen ansteuerbar sowie über Aktionen
+
+`void VariablenPartioning_SubtotalBuild(integer $InstanzID)`<br>
+Summiert die Änderungen der Zielvariablen in eine eigene geloggte Variable.
+
+`void VariablenPartioning_SubtotalInitialize(integer $InstanzID)`<br>
+Standardmässig wird bei jedem _SubtotalBuild_ auf den Wert des vorigen _SubtotalBuild_ Bezug genommen. Mit dieser Funktion kann aber der aktuelle Wert als neuer Bezugswert gesetzt werden.
 
 ## 5. Konfiguration
 
@@ -43,11 +71,33 @@ alle Funktionen sind über _RequestAction_ der jew. Variablen ansteuerbar
 | :------------------------ | :------  | :----------- | :----------- |
 | Instanz deaktivieren      | boolean  | false        | Instanz temporär deaktivieren |
 |                           |          |              | |
+| Quellvariable             | integer  | 0            | (geloggte) Variable mit Messungen |
+| Ziele                     | table    |              | Angabe möglicher Ziele |
+|                           |          |              | |
+
+* Ziele
+Die Tabelle besteht aus folgenden Eigenschaften
+ * *Ident*
+   wird als Ident der Zielvariable(n) verwendet mit dem Vorsatz *VAR_* (Zähler) bzw. *SUB_* (Zwischensumme).<br>
+   Wichtig: der Ident kann so nicht geändert werden, damit würden die Variablen gelöscht werfden; wenn erforderlich siehe Hilfaktion im _Experten-Bereich_
+ * *Name*
+   Bezeichnung der Variablen, wird beim Speichern der Konfiguration immer wieder neu gesetzt
+ * *Zwischensumme*
+   Ermöglicht die Nuةzung der Zwischensummen-Funktionalität für dieses Ziel
+ * *inaktiv*
+   Inaktive Ziele werden in der Auswahl-Variable nicht mehr angeboten
+
+Wichtig: die Einstellungen der Quellvariable (┃ariablentyp, Variablenprofile, Archiv-Einstellungen) werden von der Quellvariable in die Zielvariable(n) übernommen
 
 #### Aktionen
 
-| Bezeichnung                | Beschreibung |
-| :------------------------- | :----------- |
+| Bezeichnung                  | Beschreibung |
+| :--------------------------- | :----------- |
+| Zwischensumme bilden         | s.o. |
+| Zwischensumme initialisieren | s.o. |
+|                              |              |
+| (Neu-)Aufteilung...          | (Neu-)Aufteilung der Archivdaten aus der Quellvariable, dabei wird das Ziel gelöscht und neu aufgebaut |
+| Ident eines Ziels ändern     | Ändern des Idents eines Ziels unter Erhalt der Zielvariablen |
 
 ### Variablenprofile
 
@@ -70,5 +120,5 @@ VariablenPartioning_\<Instance-ID\>.Destinations
 
 ## 7. Versions-Historie
 
-- 0.9 @ 02.09.2022 18:00 (beta)
+- 1.0 @ 10.09.2022 10:16
   - Initiale Version
