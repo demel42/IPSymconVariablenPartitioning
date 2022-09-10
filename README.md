@@ -77,15 +77,15 @@ Standardmässig wird bei jedem _SubtotalBuild_ auf den Wert des vorigen _Subtota
 
 * Ziele
 Die Tabelle besteht aus folgenden Eigenschaften
- * **Ident**<br>
-   wird als Ident der Zielvariable(n) verwendet mit dem Vorsatz *VAR_* (Zähler) bzw. *SUB_* (Zwischensumme).<br>
-   Wichtig: der Ident kann so nicht geändert werden, damit würden die Variablen gelöscht werfden; wenn erforderlich siehe Hilfaktion im _Experten-Bereich_
- * **Name**<br>
-   Bezeichnung der Variablen, wird beim Speichern der Konfiguration immer wieder neu gesetzt
- * **Zwischensumme**<br>
-   Ermöglicht die Nuةzung der Zwischensummen-Funktionalität für dieses Ziel
- * **inaktiv**<br>
-   Inaktive Ziele werden in der Auswahl-Variable nicht mehr angeboten
+  * **Ident**<br>
+    wird als Ident der Zielvariable(n) verwendet mit dem Vorsatz *VAR_* (Zähler) bzw. *SUB_* (Zwischensumme).<br>
+    Wichtig: der Ident kann so nicht geändert werden, damit würden die Variablen gelöscht werfden; wenn erforderlich siehe Hilfaktion im _Experten-Bereich_
+  * **Name**<br>
+    Bezeichnung der Variablen, wird beim Speichern der Konfiguration immer wieder neu gesetzt
+  * **Zwischensumme**<br>
+    Ermöglicht die Nuةzung der Zwischensummen-Funktionalität für dieses Ziel
+  * **inaktiv**<br>
+    Inaktive Ziele werden in der Auswahl-Variable nicht mehr angeboten
 
 Wichtig: die Einstellungen der Quellvariable (┃ariablentyp, Variablenprofile, Archiv-Einstellungen) werden von der Quellvariable in die Zielvariable(n) übernommen
 
