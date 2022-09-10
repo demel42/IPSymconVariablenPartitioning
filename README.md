@@ -73,10 +73,9 @@ Standardmässig wird bei jedem _SubtotalBuild_ auf den Wert des vorigen _Subtota
 |                           |          |              | |
 | Quellvariable             | integer  | 0            | (geloggte) Variable mit Messungen |
 | Ziele                     | table    |              | Angabe möglicher Ziele |
-|                           |          |              | |
 
-* Ziele
-Die Tabelle besteht aus folgenden Eigenschaften
+* Ziele<br>
+  Die Tabelle enthält folgende Eigenschaften:
   * **Ident**<br>
     wird als Ident der Zielvariable(n) verwendet mit dem Vorsatz *VAR_* (Zähler) bzw. *SUB_* (Zwischensumme).<br>
     Wichtig: der Ident kann so nicht geändert werden, damit würden die Variablen gelöscht werfden; wenn erforderlich siehe Hilfaktion im _Experten-Bereich_
@@ -95,16 +94,13 @@ Wichtig: die Einstellungen der Quellvariable (┃ariablentyp, Variablenprofile, 
 | :--------------------------- | :----------- |
 | Zwischensumme bilden         | s.o. |
 | Zwischensumme initialisieren | s.o. |
-|                              |              |
+|                              | |
 | (Neu-)Aufteilung...          | (Neu-)Aufteilung der Archivdaten aus der Quellvariable, dabei wird das Ziel gelöscht und neu aufgebaut |
 | Ident eines Ziels ändern     | Ändern des Idents eines Ziels unter Erhalt der Zielvariablen |
 
 ### Variablenprofile
 
 Es werden folgende Variablenprofile angelegt:
-* Boolean<br>
-* Integer<br>
-* Float<br>
 * String<br>
 VariablenPartioning_\<Instance-ID\>.Destinations
 
