@@ -43,8 +43,9 @@ Zur Unterstützung der Aufarbeitung in der Vergangenheit protokollierter Werte k
 
 ### a. Installation des Moduls
 
-Im [Module Store](https://www.symcon.de/service/dokumentation/komponenten/verwaltungskonsole/module-store/) ist das Modul unter dem Suchbegriff *VariablePartitioning* zu finden.<br>
-Alternativ kann das Modul über [Module Control](https://www.symcon.de/service/dokumentation/modulreferenz/module-control/) unter Angabe der URL `https://github.com/demel42/VariablePartitioning.git` installiert werden.
+Im [Module Store](https://www.symcon.de/service/dokumentation/komponenten/verwaltungskonsole/module-store/) ist das Modul unter dem Suchbegriff *Variablen-Aufteilung* zu finden.<br>
+Alternativ kann das Modul über [Module Control](https://www.symcon.de/service/dokumentation/modulreferenz/module-control/) unter Angabe der
+URL `https://github.com/demel42/IPSymconVariablePartitioning.git` installiert werden.
 
 ### b. Einrichtung in IPS
 
