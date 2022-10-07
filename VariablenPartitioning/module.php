@@ -40,6 +40,8 @@ class VariablenPartitioning extends IPSModule
         $this->RegisterAttributeInteger('aggregationType', 0);
         $this->RegisterAttributeString('variableData', json_encode([]));
 
+        $this->RegisterAttributeString('UpdateInfo', '');
+
         $this->InstallVarProfiles(false);
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);

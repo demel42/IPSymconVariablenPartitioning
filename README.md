@@ -117,5 +117,9 @@ VariablenPartitioning_\<Instance-ID\>.Destinations
 
 ## 7. Versions-Historie
 
+- 1.0.1 @ 07.10.2022 13:42
+  - update submodule CommonStubs
+    Fix: Update-Prüfung wieder funktionsfähig
+
 - 1.0 @ 10.09.2022 10:16
   - Initiale Version
