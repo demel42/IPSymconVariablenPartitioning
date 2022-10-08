@@ -117,6 +117,9 @@ VariablenPartitioning_\<Instance-ID\>.Destinations
 
 ## 7. Versions-Historie
 
+- 1.1 @ 08.10.2022 14:48
+  - Neu: Absicherung des Zugriffs via Semaphore
+
 - 1.0.1 @ 07.10.2022 13:42
   - update submodule CommonStubs
     Fix: Update-Prüfung wieder funktionsfähig

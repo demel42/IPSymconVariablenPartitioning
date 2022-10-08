@@ -10,7 +10,6 @@ class VariablenPartitioning extends IPSModule
     use VariablenPartitioning\StubsCommonLib;
     use VariablenPartitioningLocalLib;
 
-    private static $semaphoreID = __CLASS__;
     private static $semaphoreTM = 5 * 1000;
 
     public static $null_destination = '-';
@@ -19,12 +18,14 @@ class VariablenPartitioning extends IPSModule
     public static $ident_sub_pfx = 'SUB_';
 
     private $ModuleDir;
+    private $SemaphoreID;
 
     public function __construct(string $InstanceID)
     {
         parent::__construct($InstanceID);
 
         $this->ModuleDir = __DIR__;
+        $this->SemaphoreID = __CLASS__ . '_' . $InstanceID;
     }
 
     public function Create()
@@ -631,6 +632,11 @@ class VariablenPartitioning extends IPSModule
     {
         $this->SendDebug(__FUNCTION__, 'value=' . $value . ', oldValue=' . $oldValue . ', changed=' . $this->bool2str($changed), 0);
 
+        if (IPS_SemaphoreEnter($this->SemaphoreID, self::$semaphoreTM) == false) {
+            $this->SendDebug(__FUNCTION__, 'unable to lock sempahore ' . $this->SemaphoreID, 0);
+            return;
+        }
+
         if ($changed) {
             $destination = $this->GetValue('Destination');
             if ($destination != '' && $destination != self::$null_destination) {
@@ -670,6 +676,8 @@ class VariablenPartitioning extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'no destination selected', 0);
             }
         }
+
+        IPS_SemaphoreLeave($this->SemaphoreID);
     }
 
     private function cmp_val($a, $b)
