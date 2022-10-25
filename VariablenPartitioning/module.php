@@ -80,19 +80,19 @@ class VariablenPartitioning extends IPSModule
 
         $destinations = json_decode($this->ReadPropertyString('destinations'), true);
         if ($destinations != false) {
-            $identList = [];
+            $idList = [];
             foreach ($destinations as $destination) {
-                $ident = $destination['ident'];
-                if ($ident == '') {
-                    $this->SendDebug(__FUNCTION__, '"ident" in "destinations" is needed', 0);
-                    $r[] = $this->Translate('Column "ident" in field "destinations" must be not empty');
+                $id = $destination['id'];
+                if ($id <= 0) {
+                    $this->SendDebug(__FUNCTION__, '"id" in "destinations" is needed', 0);
+                    $r[] = $this->Translate('Column "id" in field "destinations" must greater than 0');
                     continue;
                 }
-                if (in_array($ident, $identList)) {
-                    $this->SendDebug(__FUNCTION__, 'duplicate "ident" in "destinations"', 0);
-                    $r[] = $this->Translate('Column "ident" in field "destinations" must be unique');
+                if (in_array($id, $idList)) {
+                    $this->SendDebug(__FUNCTION__, 'duplicate "id" in "destinations"', 0);
+                    $r[] = $this->Translate('Column "id" in field "destinations" must be unique');
                 }
-                $identList[] = $ident;
+                $idList[] = $id;
 
                 $name = $destination['name'];
                 if ($name == '') {
@@ -103,6 +103,49 @@ class VariablenPartitioning extends IPSModule
         }
 
         return $r;
+    }
+
+    private function CheckModuleUpdate(array $oldInfo, array $newInfo)
+    {
+        $r = [];
+
+        if ($this->version2num($oldInfo) < $this->version2num('1.2')) {
+            $r[] = $this->Translate('The column "ident" is replaced by a continuous counter. A possible use of this ident outside the module must be corrected manually');
+        }
+
+        return $r;
+    }
+
+    private function CompleteModuleUpdate(array $oldInfo, array $newInfo)
+    {
+        if ($this->version2num($oldInfo) < $this->version2num('1.2')) {
+            $cur_destination = $this->GetValue('Destination');
+            $destinations = json_decode($this->ReadPropertyString('destinations'), true);
+            $new_destinations = [];
+            for ($i = 0; $i < count($destinations); $i++) {
+                $ident = $destinations[$i]['ident'];
+                $id = $i + 1;
+
+                @$varID = $this->GetIDForIdent(self::$ident_var_pfx . $ident);
+                if ($varID) {
+                    IPS_SetIdent($varID, self::$ident_var_pfx . $id);
+                }
+                @$varID = $this->GetIDForIdent(self::$ident_sub_pfx . $ident);
+                if ($varID) {
+                    IPS_SetIdent($varID, self::$ident_sub_pfx . $id);
+                }
+
+                if ($cur_destination == $ident) {
+                    $this->SetValue('Destination', $id);
+                }
+
+                $destinations[$i]['id'] = $id;
+                unset($destinations[$i]['ident']);
+            }
+            IPS_SetProperty($this->InstanceID, 'destinations', json_encode($destinations));
+        }
+
+        return '';
     }
 
     public function ApplyChanges()
@@ -145,7 +188,7 @@ class VariablenPartitioning extends IPSModule
                 continue;
             }
             $associations[] = [
-                'Wert'  => $destination['ident'],
+                'Wert'  => $destination['id'],
                 'Name'  => $destination['name'],
                 'Farbe' => 0xFFFF00,
             ];
@@ -180,7 +223,7 @@ class VariablenPartitioning extends IPSModule
                 $vpos = $vpos_base;
                 $vpos_base += 10;
 
-                $ident = self::$ident_var_pfx . $destination['ident'];
+                $ident = self::$ident_var_pfx . $destination['id'];
                 $name = $destination['name'];
                 $this->MaintainVariable($ident, $name, $variableType, $variableProfile, $vpos++, true);
                 $varList[] = $ident;
@@ -202,7 +245,7 @@ class VariablenPartitioning extends IPSModule
 
                 $subtotal = $destination['subtotal'];
                 if ($subtotal) {
-                    $ident = self::$ident_sub_pfx . $destination['ident'];
+                    $ident = self::$ident_sub_pfx . $destination['id'];
                     $name = $destination['name'] . ' (' . $this->Translate('subtotal') . ')';
                     $this->MaintainVariable($ident, $name, $variableType, $variableProfile, $vpos++, true);
                     $varList[] = $ident;
@@ -282,6 +325,15 @@ class VariablenPartitioning extends IPSModule
             'caption' => 'Source variable',
         ];
 
+        $add_id = 0;
+        $destinations = json_decode($this->ReadPropertyString('destinations'), true);
+        foreach ($destinations as $destination) {
+            if (isset($destination['id']) && $destination['id'] > $add_id) {
+                $add_id = $destination['id'];
+            }
+        }
+        $add_id++;
+
         $formElements[] = [
             'name'    => 'destinations',
             'type'    => 'List',
@@ -289,20 +341,20 @@ class VariablenPartitioning extends IPSModule
             'delete'  => true,
             'columns' => [
                 [
-                    'name'    => 'ident',
-                    'add'     => '',
+                    'name'    => 'id',
+                    'add'     => $add_id,
                     'edit'    => [
-                        'type'     => 'ValidationTextBox',
-                        'validate' => '^[0-9A-Za-z]+$',
+                        'type'    => 'NumberSpinner',
+                        'enabled' => false,
                     ],
-                    'width'   => '200px',
-                    'caption' => 'Ident',
+                    'width'   => '50px',
+                    'caption' => 'ID',
                 ],
                 [
                     'name'    => 'name',
                     'add'     => '',
                     'edit'    => [
-                        'type'    => 'ValidationTextBox',
+                        'type' => 'ValidationTextBox',
                     ],
                     'width'   => 'auto',
                     'caption' => 'Name',
@@ -311,7 +363,7 @@ class VariablenPartitioning extends IPSModule
                     'name'    => 'subtotal',
                     'add'     => false,
                     'edit'    => [
-                        'type'    => 'CheckBox',
+                        'type' => 'CheckBox',
                     ],
                     'width'   => '200px',
                     'caption' => 'Subtotal',
@@ -320,12 +372,13 @@ class VariablenPartitioning extends IPSModule
                     'name'    => 'inactive',
                     'add'     => false,
                     'edit'    => [
-                        'type'    => 'CheckBox',
+                        'type' => 'CheckBox',
                     ],
                     'width'   => '100px',
                     'caption' => 'inactive',
                 ],
             ],
+            'onAdd'   => 'IPS_RequestAction(' . $this->InstanceID . ', "Destinations_IncrId", json_encode($destinations));',
             'caption' => 'Destinations',
         ];
         $formElements[] = [
@@ -356,7 +409,7 @@ class VariablenPartitioning extends IPSModule
                 continue;
             }
             $destination_options[] = [
-                'value'   => $destination['ident'],
+                'value'   => $destination['id'],
                 'caption' => $destination['name'],
             ];
         }
@@ -491,28 +544,6 @@ class VariablenPartitioning extends IPSModule
                         ],
                     ],
                 ],
-                [
-                    'type'    => 'RowLayout',
-                    'items'   => [
-                        [
-                            'type'    => 'Select',
-                            'options' => $destination_options,
-                            'name'    => 'destination',
-                            'caption' => 'Destination'
-                        ],
-                        [
-                            'type'     => 'ValidationTextBox',
-                            'validate' => '^[0-9A-Za-z]+$',
-                            'name'     => 'new_ident',
-                            'caption'  => 'New ident'
-                        ],
-                        [
-                            'type'    => 'Button',
-                            'caption' => 'Change the ident of a desitination',
-                            'onClick' => 'IPS_RequestAction(' . $this->InstanceID . ', "ChangeIdent", json_encode(["destination" => $destination, "new_ident" => $new_ident]));',
-                        ],
-                    ],
-                ],
             ],
         ];
 
@@ -588,8 +619,25 @@ class VariablenPartitioning extends IPSModule
             case 'RepartioningVariable':
                 $this->RepartioningVariable($value);
                 break;
-            case 'ChangeIdent':
-                $this->ChangeIdent($value);
+            case 'Destinations_IncrId':
+                $cur_destination = json_decode($value, true);
+                $this->SendDebug(__FUNCTION__, 'cur_destination=' . print_r($cur_destination, true), 0);
+                $form = json_decode($this->GetConfigurationForm(), true);
+                foreach ($form['elements'] as $elem) {
+                    if (isset($elem['name']) && $elem['name'] == 'destinations') {
+                        $columns = $elem['columns'];
+                        $this->SendDebug(__FUNCTION__, 'columns=' . print_r($columns, true), 0);
+                        for ($i = 0; $i < count($columns); $i++) {
+                            $this->SendDebug(__FUNCTION__, 'column=' . print_r($columns[$i], true), 0);
+                            if ($columns[$i]['name'] == 'id') {
+                                $columns[$i]['add'] = $cur_destination['id'] + 1;
+                                $this->UpdateFormField('destinations', 'columns', json_encode($columns));
+                                $this->SendDebug(__FUNCTION__, 'columns=' . print_r($columns, true), 0);
+                                break;
+                            }
+                        }
+                    }
+                }
                 break;
             default:
                 $r = false;
@@ -862,72 +910,6 @@ class VariablenPartitioning extends IPSModule
                     break;
             }
         }
-    }
-
-    private function ChangeIdent($args)
-    {
-        $this->SendDebug(__FUNCTION__, 'args=' . $args, 0);
-        $jargs = json_decode($args, true);
-
-        $destination = $jargs['destination'];
-        $new_ident = $jargs['new_ident'];
-
-        $msg = '';
-
-        $do = true;
-
-        if ($do) {
-            $ident = self::$ident_var_pfx . $destination;
-            @$varID = $this->GetIDForIdent($ident);
-            if ($varID == false) {
-                $s = 'missing destination variable "' . $ident . '"';
-                $this->SendDebug(__FUNCTION__, $s, 0);
-                $msg .= $s;
-                $do = false;
-            }
-        }
-
-        if ($do) {
-            $this->SendDebug(__FUNCTION__, 'destination variable "' . $ident . '" has id ' . $varID, 0);
-
-            $destinations = json_decode($this->ReadPropertyString('destinations'), true);
-            if ($destinations != false) {
-                for ($i = 0; $i < count($destinations); $i++) {
-                    if ($destinations[$i]['ident'] == $new_ident) {
-                        $s = 'new ident is already assigned';
-                        $this->SendDebug(__FUNCTION__, $s, 0);
-                        $msg .= $s;
-                        $do = false;
-                    }
-                }
-            }
-        }
-
-        if ($do) {
-            if ($destinations != false) {
-                for ($i = 0; $i < count($destinations); $i++) {
-                    if ($destinations[$i]['ident'] == $destination) {
-                        $destinations[$i]['ident'] = $new_ident;
-                        break;
-                    }
-                }
-
-                $this->SendDebug(__FUNCTION__, 'new destinations=' . print_r($destinations, true), 0);
-
-                IPS_SetIdent($varID, self::$ident_var_pfx . $new_ident);
-                IPS_SetProperty($this->InstanceID, 'destinations', json_encode($destinations));
-                IPS_ApplyChanges($this->InstanceID);
-                if ($this->GetValue('Destination') == $destination) {
-                    $this->SetValue('Destination', $new_ident);
-                }
-
-                $s = 'changed ident to "VAR_' . $new_ident . '"';
-                $this->SendDebug(__FUNCTION__, $s, 0);
-                $msg .= $s;
-            }
-        }
-
-        $this->PopupMessage($msg);
     }
 
     public function SubtotalInitialize()

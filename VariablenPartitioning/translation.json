@@ -5,12 +5,16 @@
 
 			"__function__": "CheckConfiguration",
 			"Source variable must be specified": "Quellvariable muss angegeben sein",
-			"Column \"ident\" in field \"destinations\" must be not empty":
-				"Die Spalte \"ident\" im Feld \"Ziele\" darf nicht leer sein",
-			"Column \"ident\" in field \"destinations\" must be unique":
-				"Die Spalte \"ident\" im Feld \"destinations\" muss eindeutig sein",
+			"Column \"id\" in field \"destinations\" must be greater than 0":
+				"Die Spalte \"id\" im Feld \"Ziele\" muss größer als 0 sein",
+			"Column \"id\" in field \"destinations\" must be unique":
+				"Die Spalte \"id\" im Feld \"destinations\" muss eindeutig sein",
 			"Column \"name\" in field \"destinations\" must be not empty":
 				"Die Spalte \"Name\" im Feld \"Ziele\" darf nicht leer sein",
+
+			"__function__": "CheckModuleUpdate",
+			"The column \"ident\" is replaced by a continuous counter. A possible use of this ident outside the module must be corrected manually":
+				"Die Spalte \"ident\" wird durch einen fortlaufenden Zähler ersetzt. Eine mögliche Verwendung dieses Idents ausserhalb des Moduls muss manuell korrigiert werden",
 
 			"__properties__": "",
 			"Disable instance": "Instanz deaktivieren",

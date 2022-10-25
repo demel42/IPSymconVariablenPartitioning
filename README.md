@@ -73,13 +73,12 @@ Standardmässig wird bei jedem _SubtotalBuild_ auf den Wert des vorigen _Subtota
 | Instanz deaktivieren      | boolean  | false        | Instanz temporär deaktivieren |
 |                           |          |              | |
 | Quellvariable             | integer  | 0            | (geloggte) Variable mit Messungen |
-| Ziele                     | table    |              | Angabe möglicher Ziele |
+| Ziele                     | array    |              | Angabe möglicher Ziele _[1]_ |
 
-* Ziele<br>
+- _[1]_: Ziele<br>
   Die Tabelle enthält folgende Eigenschaften:
-  * **Ident**<br>
-    wird als Ident der Zielvariable(n) verwendet mit dem Vorsatz *VAR_* (Zähler) bzw. *SUB_* (Zwischensumme).<br>
-    Wichtig: der Ident kann so nicht geändert werden, damit würden die Variablen gelöscht werfden; wenn erforderlich siehe Hilfaktion im _Experten-Bereich_
+  * **ID**<br>
+    wird wur Bildeung des Ident der Zielvariable(n) verwendet mit dem Vorsatz *VAR_* (Zähler) bzw. *SUB_* (Zwischensumme).<br>
   * **Name**<br>
     Bezeichnung der Variablen, wird beim Speichern der Konfiguration immer wieder neu gesetzt
   * **Zwischensumme**<br>
@@ -87,7 +86,7 @@ Standardmässig wird bei jedem _SubtotalBuild_ auf den Wert des vorigen _Subtota
   * **inaktiv**<br>
     Inaktive Ziele werden in der Auswahl-Variable nicht mehr angeboten
 
-Wichtig: die Einstellungen der Quellvariable (┃ariablentyp, Variablenprofile, Archiv-Einstellungen) werden von der Quellvariable in die Zielvariable(n) übernommen
+Wichtig: die Einstellungen der Quellvariable (Variablentyp, Variablenprofile, Archiv-Einstellungen) werden von der Quellvariable in die Zielvariable(n) übernommen
 
 #### Aktionen
 
@@ -97,7 +96,6 @@ Wichtig: die Einstellungen der Quellvariable (┃ariablentyp, Variablenprofile, 
 | Zwischensumme initialisieren | s.o. |
 |                              | |
 | (Neu-)Aufteilung...          | (Neu-)Aufteilung der Archivdaten aus der Quellvariable, dabei wird das Ziel gelöscht und neu aufgebaut |
-| Ident eines Ziels ändern     | Ändern des Idents eines Ziels unter Erhalt der Zielvariablen |
 
 ### Variablenprofile
 
@@ -116,6 +114,10 @@ VariablenPartitioning_\<Instance-ID\>.Destinations
 ### Quellen
 
 ## 7. Versions-Historie
+
+- 1.2 @ 25.10.2022 11:57
+  - Änderung: die Spalte "Ident" in den Zielen gibt es nicht mehr, sie wird durch einen automatisch erzeugten Zähler ersetzt
+  - update submodule CommonStubs
 
 - 1.1 @ 08.10.2022 14:48
   - Neu: Absicherung des Zugriffs via Semaphore
