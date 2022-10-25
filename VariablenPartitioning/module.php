@@ -261,6 +261,56 @@ class VariablenPartitioning extends IPSModule
         }
     }
 
+    private function MakeDestinationColumns($id)
+    {
+        return [
+            [
+                'name'    => 'id',
+                'add'     => $id,
+                'width'   => '50px',
+                'caption' => 'ID',
+            ],
+            [
+                'name'    => 'ident',
+                'add'     => '',
+                'save'    => false,
+                'edit'    => [
+                    'type'     => 'ValidationTextBox',
+                    'validate' => '^[0-9A-Za-z]+$',
+                ],
+                'width'   => '200px',
+                'caption' => 'Ident',
+            ],
+            [
+                'name'    => 'name',
+                'add'     => '',
+                'edit'    => [
+                    'type'    => 'ValidationTextBox',
+                ],
+                'width'   => 'auto',
+                'caption' => 'Name',
+            ],
+            [
+                'name'    => 'subtotal',
+                'add'     => false,
+                'edit'    => [
+                    'type'    => 'CheckBox',
+                ],
+                'width'   => '200px',
+                'caption' => 'Subtotal',
+            ],
+            [
+                'name'    => 'inactive',
+                'add'     => false,
+                'edit'    => [
+                    'type'    => 'CheckBox',
+                ],
+                'width'   => '100px',
+                'caption' => 'inactive',
+            ],
+        ];
+    }
+
     private function GetFormElements()
     {
         $formElements = $this->GetCommonFormElements('Variablen partitioning');
@@ -289,8 +339,15 @@ class VariablenPartitioning extends IPSModule
             'delete'  => true,
             'columns' => [
                 [
+                    'name'    => 'id',
+                    'add'     => 0,
+                    'width'   => '50px',
+                    'caption' => 'ID',
+                ],
+                [
                     'name'    => 'ident',
                     'add'     => '',
+                    'save'    => false,
                     'edit'    => [
                         'type'     => 'ValidationTextBox',
                         'validate' => '^[0-9A-Za-z]+$',
@@ -326,6 +383,7 @@ class VariablenPartitioning extends IPSModule
                     'caption' => 'inactive',
                 ],
             ],
+            'onAdd'   => 'IPS_RequestAction(' . $this->InstanceID . ', "Destinations_IncrId", json_encode($destinations));',
             'caption' => 'Destinations',
         ];
         $formElements[] = [
@@ -590,6 +648,26 @@ class VariablenPartitioning extends IPSModule
                 break;
             case 'ChangeIdent':
                 $this->ChangeIdent($value);
+                break;
+            case 'Destinations_IncrId':
+                $cur_destination = json_decode($value, true);
+                $this->SendDebug(__FUNCTION__, 'cur_destination=' . print_r($cur_destination, true), 0);
+                $form = json_decode($this->GetConfigurationForm(), true);
+                foreach ($form['elements'] as $elem) {
+                    if (isset($elem['name']) && $elem['name'] == 'destinations') {
+                        $columns = $elem['columns'];
+                        $this->SendDebug(__FUNCTION__, 'columns=' . print_r($columns, true), 0);
+                        for ($i = 0; $i < count($columns); $i++) {
+                            $this->SendDebug(__FUNCTION__, 'column=' . print_r($columns[$i], true), 0);
+                            if ($columns[$i]['name'] == 'id') {
+                                $columns[$i]['add'] = $cur_destination['id'] + 1;
+                                $this->UpdateFormField('destinations', 'columns', json_encode($columns));
+                                $this->SendDebug(__FUNCTION__, 'columns=' . print_r($columns, true), 0);
+                                break;
+                            }
+                        }
+                    }
+                }
                 break;
             default:
                 $r = false;

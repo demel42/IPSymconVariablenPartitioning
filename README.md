@@ -117,6 +117,8 @@ VariablenPartitioning_\<Instance-ID\>.Destinations
 
 ## 7. Versions-Historie
 
+- 1.2 @ 24.10.2022 12:18
+
 - 1.1 @ 08.10.2022 14:48
   - Neu: Absicherung des Zugriffs via Semaphore
 
