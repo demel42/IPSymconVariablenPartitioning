@@ -261,56 +261,6 @@ class VariablenPartitioning extends IPSModule
         }
     }
 
-    private function MakeDestinationColumns($id)
-    {
-        return [
-            [
-                'name'    => 'id',
-                'add'     => $id,
-                'width'   => '50px',
-                'caption' => 'ID',
-            ],
-            [
-                'name'    => 'ident',
-                'add'     => '',
-                'save'    => false,
-                'edit'    => [
-                    'type'     => 'ValidationTextBox',
-                    'validate' => '^[0-9A-Za-z]+$',
-                ],
-                'width'   => '200px',
-                'caption' => 'Ident',
-            ],
-            [
-                'name'    => 'name',
-                'add'     => '',
-                'edit'    => [
-                    'type'    => 'ValidationTextBox',
-                ],
-                'width'   => 'auto',
-                'caption' => 'Name',
-            ],
-            [
-                'name'    => 'subtotal',
-                'add'     => false,
-                'edit'    => [
-                    'type'    => 'CheckBox',
-                ],
-                'width'   => '200px',
-                'caption' => 'Subtotal',
-            ],
-            [
-                'name'    => 'inactive',
-                'add'     => false,
-                'edit'    => [
-                    'type'    => 'CheckBox',
-                ],
-                'width'   => '100px',
-                'caption' => 'inactive',
-            ],
-        ];
-    }
-
     private function GetFormElements()
     {
         $formElements = $this->GetCommonFormElements('Variablen partitioning');
@@ -332,6 +282,15 @@ class VariablenPartitioning extends IPSModule
             'caption' => 'Source variable',
         ];
 
+        $add_id = 0;
+        $destinations = json_decode($this->ReadPropertyString('destinations'), true);
+        foreach ($destinations as $destination) {
+            if (isset($destination['id']) && $destination['id'] > $add_id) {
+                $add_id = $destination['id'];
+            }
+        }
+        $add_id++;
+
         $formElements[] = [
             'name'    => 'destinations',
             'type'    => 'List',
@@ -340,14 +299,14 @@ class VariablenPartitioning extends IPSModule
             'columns' => [
                 [
                     'name'    => 'id',
-                    'add'     => 0,
+                    'add'     => $add_id,
+                    'save'    => true,
                     'width'   => '50px',
                     'caption' => 'ID',
                 ],
                 [
                     'name'    => 'ident',
                     'add'     => '',
-                    'save'    => false,
                     'edit'    => [
                         'type'     => 'ValidationTextBox',
                         'validate' => '^[0-9A-Za-z]+$',
