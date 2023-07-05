@@ -116,9 +116,9 @@ VariablenPartitioning_\<Instance-ID\>.Destinations
 ## 7. Versions-Historie
 
 - 1.3 @ 04.07.2023 14:44
+  - Vorbereitung auf IPS 7 / PHP 8.2
   - update submodule CommonStubs
     - Absicherung bei Zugriff auf Objekte und Inhalte
-    - Vorbereitung auf IPS 7 / PHP 8.2
 
 - 1.2 @ 25.10.2022 11:57
   - Änderung: die Spalte "Ident" in den Zielen gibt es nicht mehr, sie wird durch einen automatisch erzeugten Zähler ersetzt
