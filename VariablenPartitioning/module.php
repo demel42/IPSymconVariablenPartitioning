@@ -10,22 +10,26 @@ class VariablenPartitioning extends IPSModule
     use VariablenPartitioning\StubsCommonLib;
     use VariablenPartitioningLocalLib;
 
-    private static $semaphoreTM = 5 * 1000;
-
     public static $null_destination = '-';
 
     public static $ident_var_pfx = 'VAR_';
     public static $ident_sub_pfx = 'SUB_';
 
-    private $ModuleDir;
+    private static $semaphoreTM = 5 * 1000;
+
     private $SemaphoreID;
 
     public function __construct(string $InstanceID)
     {
         parent::__construct($InstanceID);
 
-        $this->ModuleDir = __DIR__;
+        $this->CommonContruct(__DIR__);
         $this->SemaphoreID = __CLASS__ . '_' . $InstanceID;
+    }
+
+    public function __destruct()
+    {
+        $this->CommonDestruct();
     }
 
     public function Create()
@@ -41,7 +45,8 @@ class VariablenPartitioning extends IPSModule
         $this->RegisterAttributeInteger('aggregationType', 0);
         $this->RegisterAttributeString('variableData', json_encode([]));
 
-        $this->RegisterAttributeString('UpdateInfo', '');
+        $this->RegisterAttributeString('UpdateInfo', json_encode([]));
+        $this->RegisterAttributeString('ModuleStats', json_encode([]));
 
         $this->InstallVarProfiles(false);
 
