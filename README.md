@@ -115,6 +115,11 @@ VariablenPartitioning_\<Instance-ID\>.Destinations
 
 ## 7. Versions-Historie
 
+- 1.6 @ 02.01.2025 14:28
+  - Fix: Link zur Dokumentation korrigiert
+  - interne Änderung
+  - update submodule CommonStubs
+
 - 1.5 @ 06.02.2024 09:46
   - Verbesserung: Angleichung interner Bibliotheken anlässlich IPS 7
   - update submodule CommonStubs
