@@ -115,6 +115,10 @@ VariablenPartitioning_\<Instance-ID\>.Destinations
 
 ## 7. Versions-Historie
 
+- 1.7 @ 12.05.2026 18:07
+  - Fix: Änderung von deprecated php code
+  - update submodule CommonStubs
+
 - 1.6 @ 02.01.2025 14:28
   - Fix: Link zur Dokumentation korrigiert
   - interne Änderung

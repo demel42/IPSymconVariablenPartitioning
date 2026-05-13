@@ -125,7 +125,7 @@ class VariablenPartitioning extends IPSModule
     {
         if ($this->version2num($oldInfo) < $this->version2num('1.2')) {
             $cur_destination = $this->GetValue('Destination');
-            $destinations = json_decode($this->ReadPropertyString('destinations'), true);
+            $destinations = (array) json_decode($this->ReadPropertyString('destinations'), true);
             $new_destinations = [];
             for ($i = 0; $i < count($destinations); $i++) {
                 $ident = $destinations[$i]['ident'];
@@ -210,7 +210,7 @@ class VariablenPartitioning extends IPSModule
 
         $source_varID = $this->ReadPropertyInteger('source_varID');
         if (IPS_VariableExists($source_varID)) {
-            $archivID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
+            $archivID = (array) IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 
             $var = IPS_GetVariable($source_varID);
             $variableType = $var['VariableType'];
@@ -419,7 +419,7 @@ class VariablenPartitioning extends IPSModule
             ];
         }
 
-        $archivID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
+        $archivID = (array) IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
         $avars = AC_GetAggregationVariables($archivID, false);
 
         $variableData = json_decode($this->ReadAttributeString('variableData'), true);
@@ -630,7 +630,7 @@ class VariablenPartitioning extends IPSModule
                 $form = json_decode($this->GetConfigurationForm(), true);
                 foreach ($form['elements'] as $elem) {
                     if (isset($elem['name']) && $elem['name'] == 'destinations') {
-                        $columns = $elem['columns'];
+                        $columns = (array) $elem['columns'];
                         $this->SendDebug(__FUNCTION__, 'columns=' . print_r($columns, true), 0);
                         for ($i = 0; $i < count($columns); $i++) {
                             $this->SendDebug(__FUNCTION__, 'column=' . print_r($columns[$i], true), 0);
@@ -765,7 +765,7 @@ class VariablenPartitioning extends IPSModule
         $endS = $end_ts ? date('d.m.Y H:i:s', $end_ts) : '-';
         $this->SendDebug(__FUNCTION__, 'destination=' . $destination . ', start=' . $startS . ', end=' . $endS, 0);
 
-        $archivID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
+        $archivID = (array) IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 
         $msg = '';
 
